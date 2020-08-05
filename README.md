@@ -14,7 +14,7 @@ This includes:
 - [Packer](https://packer.io/)
 - [Ansible](https://docs.ansible.com/ansible/latest/installation_guide/index.html)
 - [Azure CLI](https://docs.microsoft.com/en-us/cli/azure/install-azure-cli?view=azure-cli-latest)
-- [terraform](https://www.terraform.io/) - 0.12
+- [terraform](https://www.terraform.io/) - 0.13
 
 ## Variables
 
@@ -59,22 +59,18 @@ The Ansible Playbook used contains tasks to help keep the disk space low over ti
 
 ### Terraform
 
-All configuration for Terraform is stored in a single `main.tf` for simplicity but will build a dedicated VNet and set of VMSS instances using the provided source image.
+All configuration for Terraform is stored in the [terraform](terraform) folder for simplicity but will build a dedicated VNet and set of VMSS instances using the provided source image.
 
-|Variable|Description|Default Value|
-|-|-|-|
-|tenant_id|The tenant id of this deployment|`null`|
-|subscription_id|The subscription id of this deployment|`null`|
-|client_id|The client id of this deployment|`null`|
-|client_secret|The client secret of this deployment|`null`|
-|location|The location of this deployment|`"Central US"`|
-|resource_prefix|A prefix for the name of the resource, used to generate the resource names||
-|tags|Tags given to the resources created by this template|`{}`|
-|vm_source_image_id|ID of a source image for the Linux Azure DevOps VMs||
-|vm_size|Size of instances to deploy|`"Standard_B2s"`|
-|vm_disk_type|Type of disk to use on instances|`"StandardSSD_LRS"`|
-|vm_disk_size_gb|Size of disk to use on instances|`127`|
-|vm_disk_caching|Caching option to use on instances|`"None"`|
+|Variable Name|Description|Type|Default Value|
+|-|-|-|-|
+|tenant_id|The tenant id of this deployment|string|`null`|
+|subscription_id|The subscription id of this deployment|string|`null`|
+|client_id|The client id of this deployment|string|`null`|
+|client_secret|The client secret of this deployment|string|`null`|
+|location|The location of this deployment|string|`"Central US"`|
+|resource_prefix|A prefix for the name of the resource, used to generate the resource names|string||
+|tags|Tags given to the resources created by this template|map(string)|`{}`|
+|vm_azdo_source_image_id|ID of a source image for the Linux Azure DevOps VMs|string||
 
 ## Instructions
 

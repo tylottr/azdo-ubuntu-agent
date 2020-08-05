@@ -1,63 +1,63 @@
-##########
-# SSH Key
-##########
-resource "tls_private_key" "azdo" {
-  algorithm = "RSA"
-}
+######################
+# Resource Management
+######################
 
-#################
-# Resource Group
-#################
-resource "azurerm_resource_group" "azdo" {
+resource "azurerm_resource_group" "main" {
   name     = "${local.resource_prefix}-rg"
   location = var.location
   tags     = var.tags
 }
 
-##################
-# Virtual Network
-##################
-resource "azurerm_virtual_network" "azdo" {
+#############
+# Networking
+#############
+
+resource "azurerm_virtual_network" "main" {
   name                = "${local.resource_prefix}-vnet"
-  resource_group_name = azurerm_resource_group.azdo.name
+  resource_group_name = azurerm_resource_group.main.name
   location            = var.location
   tags                = var.tags
 
   address_space = ["10.10.0.0/24"]
 }
 
-resource "azurerm_subnet" "azdo" {
+resource "azurerm_subnet" "main" {
   name                = "azdo"
-  resource_group_name = azurerm_resource_group.azdo.name
+  resource_group_name = azurerm_resource_group.main.name
 
-  virtual_network_name = azurerm_virtual_network.azdo.name
-  address_prefixes     = [azurerm_virtual_network.azdo.address_space[0]]
+  virtual_network_name = azurerm_virtual_network.main.name
+  address_prefixes     = [azurerm_virtual_network.main.address_space[0]]
 }
 
 ##########
 # Compute
 ##########
-resource "azurerm_linux_virtual_machine_scale_set" "azdo" {
+
+resource "tls_private_key" "main" {
+  algorithm = "RSA"
+}
+
+resource "azurerm_linux_virtual_machine_scale_set" "main" {
   name                = "${local.resource_prefix}-vmss"
-  resource_group_name = azurerm_resource_group.azdo.name
+  resource_group_name = azurerm_resource_group.main.name
   location            = var.location
   tags                = var.tags
 
-  sku       = var.vm_size
+  sku       = "Standard_B2s"
   instances = 1
 
   admin_username = "vmadmin"
   admin_ssh_key {
     username   = "vmadmin"
-    public_key = tls_private_key.azdo.public_key_openssh
+    public_key = tls_private_key.main.public_key_openssh
   }
 
-  source_image_id = var.vm_source_image_id
+  source_image_id = var.vm_azdo_source_image_id
 
   os_disk {
-    storage_account_type = var.vm_disk_type
-    disk_size_gb         = var.vm_disk_size_gb
-    caching              = var.vm_disk_caching
+    storage_account_type = "StandardSSD_LRS"
+    caching              = "None"
+    disk_size_gb         = 127
   }
 
   network_interface {
@@ -67,7 +67,7 @@ resource "azurerm_linux_virtual_machine_scale_set" "azdo" {
     ip_configuration {
       name      = "ipconfig"
       primary   = true
-      subnet_id = azurerm_subnet.azdo.id
+      subnet_id = azurerm_subnet.main.id
     }
   }
 
