@@ -4,7 +4,7 @@ Thie repository contains resources to help create an Azure DevOps agent.
 
 This includes:
 
-- `agent.json`, a Packer definition file to create an Azure VM image
+- `agent.pkr.hcl`, a Packer definition file to create an Azure VM image
     - Alternatively, you can look at [this repository](https://github.com/actions/virtual-environments/tree/master/images) for a much better version.
 - `agent.yml`, an Ansible playbook that utilises the `azdo-ubuntu-agent` role stored under the roles directory.
 - A Terraform configuration to deploy the new image to a VMSS resource, enabling the use of VMSS-backed agent pools.
@@ -14,7 +14,7 @@ This includes:
 - [Packer](https://packer.io/)
 - [Ansible](https://docs.ansible.com/ansible/latest/installation_guide/index.html)
 - [Azure CLI](https://docs.microsoft.com/en-us/cli/azure/install-azure-cli?view=azure-cli-latest)
-- [terraform](https://www.terraform.io/) - 0.13
+- [terraform](https://www.terraform.io/)
 
 ## Variables
 
@@ -31,7 +31,6 @@ Variables can be set either with `-var` or with `-var-file` keywords.
 |client_secret|The client secret used to access the subscription|Uses AZURE_CLIENT_SECREt environment variable|No|
 |location|The location to make the image in|`"centralus"`|No|
 |resource_group|The resource group to make the image in||Yes|
-|image_name|The name of the image|`"vsts-agent-{{ isotime \"2006-01-02\" }}"`|No|
 
 ### Ansible
 
@@ -79,7 +78,7 @@ All configuration for Terraform is stored in the [terraform](terraform) folder f
 The below steps will let you create a Managed Disk Image of the VSTS Agent in an interactive workflow.
 
 1. `az login` to log into Azure
-2. `packer build -var resource_group=<REPLACE_WITH_RESOURCE_GROUP_NAME> agent.json`
+2. `packer build -var resource_group=changeme agent.pkr.hcl`
 
 ### Terraform - Create VMSS Infrastructure
 
@@ -87,7 +86,7 @@ The `main.tf` file is an example configuration to use but this can be deployed w
 
 1. `az login` to log into Azure
 2. `terraform init`
-3. `terraform apply -var resource_prefix="azdo" -var vm_source_image_id="REPLACE_WITH_PACKER_IMAGE_ID"`
+3. `terraform apply -var resource_prefix="azdo" -var vm_source_image_id="changeme"`
     - The `vm_source_image_id` can be pulled with `cat manifest.json | jq -r '.builds[0].artifact_id'`, as an example using `bash` and `jq`
 
 ### Ansible - Bootstrap existing VMs
@@ -101,7 +100,7 @@ plugin: azure_rm
 auth_source: cli
 
 include_vm_resource_groups:
-- REPLACE_WITH_RESOURCE_GROUP_NAME
+- changeme
 
 exclude_host_filters:
 - powerstate != 'running'
